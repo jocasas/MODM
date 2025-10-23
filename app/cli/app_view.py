@@ -4,7 +4,7 @@ from app.cli.utils import draw_footer
 from app.core.search import search_notes
 
 def app_view(stdscr):
-    curses.curs_set(1)
+    curses.curs_set(0)
     curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
