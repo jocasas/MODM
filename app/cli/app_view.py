@@ -22,11 +22,30 @@ def app_view(stdscr):
 
         # === Resultados ===
         results = search_notes(query)
-        for i, nota in enumerate(results[:h - 6]):
+        # Posición y tamaño de la caja central
+        box_top = 3
+        box_left = 2
+        box_height = h - 6
+        box_width = w - 4
+
+        # Dibujar borde completo
+        stdscr.addch(box_top, box_left, curses.ACS_ULCORNER)
+        stdscr.addch(box_top, box_left + box_width - 1, curses.ACS_URCORNER)
+        stdscr.addch(box_top + box_height - 1, box_left, curses.ACS_LLCORNER)
+        stdscr.addch(box_top + box_height - 1, box_left + box_width - 1, curses.ACS_LRCORNER)
+        stdscr.hline(box_top, box_left + 1, curses.ACS_HLINE, box_width - 2)
+        stdscr.hline(box_top + box_height - 1, box_left + 1, curses.ACS_HLINE, box_width - 2)
+        stdscr.vline(box_top + 1, box_left, curses.ACS_VLINE, box_height - 2)
+        stdscr.vline(box_top + 1, box_left + box_width - 1, curses.ACS_VLINE, box_height - 2)
+
+        # Dibujar resultados dentro de la caja
+        max_items = box_height - 2  # espacio disponible dentro de la caja
+        for i, nota in enumerate(results[:max_items]):
+            y = box_top + 1 + i
             marker = "> " if i == seleccion else "  "
             if i == seleccion:
                 stdscr.attron(curses.color_pair(1))
-            stdscr.addstr(4 + i, 2, f"{marker}{nota}")
+            stdscr.addstr(y, box_left + 2, f"{marker}{nota}")
             if i == seleccion:
                 stdscr.attroff(curses.color_pair(1))
 
