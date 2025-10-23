@@ -4,7 +4,7 @@ import curses
 """Main Menu Script"""
 
 def Menu():
-    menu_options = ["Alimentacion Logs","Diario","Salir"]
+    menu_options = ["Alimentación Logs","Diario","Salir"]
 
     def draw_menu(stdscr):
         curses.curs_set(0)
@@ -37,12 +37,17 @@ def Menu():
                 current_row += 1
             elif key in [10, 13]:  # Enter
                 selected = menu_options[current_row]
+                print(selected)
                 if selected == "Salir":
                     break
-                stdscr.clear()
-                stdscr.addstr(0, 0, f"Seleccionaste: {selected}")
-                stdscr.addstr(1, 0, "Presiona una tecla para volver al menú...")
-                stdscr.refresh()
-                stdscr.getch()
+                elif selected == "Alimentación Logs":
+                    #alimentacion.run(stdscr)
+                    continue
+                    
+                elif selected == "Diario":
+                    #diario.run(stdscr)
+                    continue
+                
+                """POST IF"""
 
     curses.wrapper(draw_menu)
