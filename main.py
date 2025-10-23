@@ -1,7 +1,9 @@
-from app.core import run_app
+import curses
+from app.cli.menu import main_menu
 
-def main():
-    run_app()
+def main(stdscr):
+    curses.curs_set(0)
+    main_menu(stdscr)
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(main)
