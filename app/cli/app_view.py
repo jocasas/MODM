@@ -39,8 +39,9 @@ def app_view(stdscr):
         # --- Entrada de texto ---
         if 32 <= key <= 126:  # caracteres visibles
             query += chr(key)
-        elif key in (curses.KEY_BACKSPACE, 127):
-            query = query[:-1]
+        elif key in (curses.KEY_BACKSPACE, 127,8): #BORRAR
+            if query:
+                 query = query[:-1]
         elif key == curses.KEY_UP and seleccion > 0:
             seleccion -= 1
         elif key == curses.KEY_DOWN and seleccion < len(results) - 1:
