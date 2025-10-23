@@ -1,5 +1,5 @@
 import curses
-
+from app.modules.diario.core import diario
 
 """Main Menu Script"""
 
@@ -45,8 +45,7 @@ def Menu():
                     continue
                     
                 elif selected == "Diario":
-                    #diario.run(stdscr)
-                    continue
+                    diario(stdscr)
                 
                 """POST IF"""
 
