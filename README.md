@@ -1,4 +1,4 @@
-project name : MOM
+project name : MODM
 
 Concepto base: Markdown Knowledge CLI
 
