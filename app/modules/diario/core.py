@@ -2,20 +2,19 @@ import curses
 
 def diario(stdscr):
     curses.curs_set(0)
-    stdscr.clear()
     curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
     opciones = ["Ver entradas", "Agregar entrada", "Eliminar entrada", "Volver al menú principal"]
     seleccion = 0
 
-    stdscr.nodelay(True) # Fuerzo que actualize el buffer los cambios lo mas rapido
+    stdscr.nodelay(True)  # Permite que se pinte la primera vez sin bloquear
+    tecla = -1  # Valor inicial inválido para el loop
 
     while True:
-        # No limpiar stdscr aquí, solo crear/redibujar la ventana
         alto, ancho = stdscr.getmaxyx()
 
-        # Crear una "ventana" con borde
+        # Crear ventana con borde centrada
         win_alto = len(opciones) + 6
         win_ancho = 50
         win_inicio_y = (alto - win_alto) // 2
@@ -24,21 +23,14 @@ def diario(stdscr):
         win = curses.newwin(win_alto, win_ancho, win_inicio_y, win_inicio_x)
         win.box()
 
-        # Título centrado
+        # Título
         titulo = "📔  Diario Personal"
         win.addstr(1, (win_ancho - len(titulo)) // 2, titulo, curses.A_BOLD)
 
-        win.refresh()
-        stdscr.refresh()  # asegura que la pantalla principal también se actualice
-        
-        # Mostrar opciones
+        # Opciones
         for idx, opcion in enumerate(opciones):
-            win.refresh()
-            stdscr.refresh()  # asegura que la pantalla principal también se actualice
             x = 3 + idx
             if idx == seleccion:
-                win.refresh()
-                stdscr.refresh()  # asegura que la pantalla principal también se actualice
                 win.attron(curses.color_pair(1))
                 win.addstr(x, 2, f"> {opcion}")
                 win.attroff(curses.color_pair(1))
@@ -46,10 +38,17 @@ def diario(stdscr):
                 win.addstr(x, 2, f"  {opcion}")
 
         win.refresh()
-        stdscr.refresh()  # asegura que la pantalla principal también se actualice
+        stdscr.refresh()
 
+        # Captura de tecla sin bloqueo
         tecla = stdscr.getch()
-        stdscr.nodelay(False) # Desactivo el buffer forzado despues del input
+
+        # Si no hay tecla, sigue (para que se vea desde el inicio)
+        if tecla == -1:
+            curses.napms(30)  # Pequeño delay para no saturar CPU
+            continue
+
+        stdscr.nodelay(False)  # Vuelve al modo normal tras el primer input
 
         if tecla == curses.KEY_UP and seleccion > 0:
             seleccion -= 1
@@ -61,7 +60,6 @@ def diario(stdscr):
                 break
             else:
                 mostrar_subpantalla(stdscr, opcion_elegida)
-
 
 def mostrar_subpantalla(stdscr, titulo):
     stdscr.clear()
