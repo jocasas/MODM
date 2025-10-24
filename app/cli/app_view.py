@@ -11,10 +11,17 @@ def app_view(stdscr):
 
     query = ""
     seleccion = 0
+    offset = 0  # posición de desplazamiento actual (scroll)
 
     while True:
         stdscr.clear()
         h, w = stdscr.getmaxyx()
+
+        # Posición y tamaño de la caja central
+        box_top = 3
+        box_left = 2
+        box_height = h - 6
+        box_width = w - 4
 
         # === Campo de búsqueda ===
         stdscr.addstr(1, 2, f"🔍 Buscar notas: {query}")
@@ -22,12 +29,25 @@ def app_view(stdscr):
 
         # === Resultados ===
         results = search_notes(query)
-        # Posición y tamaño de la caja central
-        box_top = 3
-        box_left = 2
-        box_height = h - 6
-        box_width = w - 4
 
+        # === Control de scroll ===
+        visible_rows = box_height - 2  # espacio interno real
+        total_items = len(results)
+
+        if total_items == 0:
+            seleccion = 0
+            offset = 0
+        else:
+            seleccion = max(0,min(seleccion,total_items - 1))
+            # Ajustar offset
+            if seleccion < offset:
+                offset = seleccion
+            elif seleccion >= offset + visible_rows:
+                offset = seleccion - visible_rows + 1
+
+            # Asegurarse de no pasarse del final
+            offset = max(0, min(offset, max(0, total_items - visible_rows)))
+            
         # Dibujar borde completo
         stdscr.addch(box_top, box_left, curses.ACS_ULCORNER)
         stdscr.addch(box_top, box_left + box_width - 1, curses.ACS_URCORNER)
@@ -40,13 +60,44 @@ def app_view(stdscr):
 
         # Dibujar resultados dentro de la caja
         max_items = box_height - 2  # espacio disponible dentro de la caja
-        for i, nota in enumerate(results[:max_items]):
+
+        """
+        Bloque de render de resultados con sroll y seleccion alineada
+
+        Principal funcion -> Este bucle dibuja linea por linea los elementos visibles de "results" dentro de la "caja central" con bordes.
+        USA DOS INDICES :
+            i : indice relativo dentro de la ventana visible (0 .... visible_rows/1) (cuantas filas tenemos de datos)
+            idx_real : indice absoluto en la lista completa ('results') es decir considera el desplazamiento vertical "offset"
+            este indice nos permite rastrear la posicion de la seleccion cuando le hacemos offset para mostrar mas opciones al bajar o subir
+            por lo mismo nos permite hacer lo que hace el menu como tagear la seleccion con el ">"        
+            ¡NO usar `i` para comparar con `seleccion`! Cuando hay scroll, `i`
+             siempre parte en 0 en cada “página”. El correcto es `idx_real`.
+
+             # Variables que deben existir fuera de este bloque:
+         - box_top, box_left, visible_rows, total_items
+         - results (lista de nombres de nota)
+         - offset (inicio del rango visible)
+         - seleccion (índice absoluto seleccionado en `results`)
+         - colores inicializados: init_pair(1, ...)
+
+        """
+        for i, nota in enumerate(results[offset:offset + visible_rows]):
+            idx_real = offset + i
             y = box_top + 1 + i
-            marker = "> " if i == seleccion else "  "
-            if i == seleccion:
+
+            #Limpiar linea dentro de la caja antes de escribir
+            stdscr.move(y,box_left + 1)
+            stdscr.clrtoeol()
+
+            if idx_real >= total_items:
+                continue # no hay mas notas
+
+            nota = results[idx_real]
+            marker = "> " if idx_real == seleccion else " "
+            if idx_real == seleccion:
                 stdscr.attron(curses.color_pair(1))
             stdscr.addstr(y, box_left + 2, f"{marker}{nota}")
-            if i == seleccion:
+            if idx_real == seleccion:
                 stdscr.attroff(curses.color_pair(1))
 
         # === Footer ===
