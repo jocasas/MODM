@@ -6,7 +6,7 @@ from app.core.search import search_notes
 def app_view(stdscr):
     curses.curs_set(0)
     curses.start_color()
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
     query = ""
@@ -118,8 +118,9 @@ def app_view(stdscr):
             seleccion += 1
         elif key in [10, 13] and results:
             show_note(stdscr, results[seleccion])
-        elif key in [ord("n"), ord("N")]:
+        elif key == 14:  # Ctrl+N
             new_note(stdscr)
+            curses.curs_set(0)
         elif key == 27:  # ESC
             break
 
